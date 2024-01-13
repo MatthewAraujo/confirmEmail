@@ -6,6 +6,9 @@ import (
 	"log"
 	"net/http"
 	"net/smtp"
+	"os"
+
+	"github.com/joho/godotenv"
 )
 
 type User struct {
@@ -44,20 +47,25 @@ func handleRequests() {
 }
 
 func sendMail(user User) {
-	author := "matthewaraujo20@gmail.com"
+	godotenv.Load()
+	smtpPassword := os.Getenv("SMTP_PASSWORD")
+	smtpHost := os.Getenv("SMTP_HOST")
+	smtpPort := os.Getenv("SMTP_PORT")
+	stmpAuthor := os.Getenv("SMTP_AUTHOR")
+
 	auth := smtp.PlainAuth(
 		"",
-		author,
-		"itvjrvmioplpeopv",
-		"smtp.gmail.com",
+		stmpAuthor,
+		smtpPassword,
+		smtpHost,
 	)
 
-	msg := "From: " + author + "\n" + "To: " + user.Email + "\n" + "Subject: Welcome to the club!\n\n" + "Hello " + user.FirstName + " " + user.LastName + ",\n\n" + "Welcome to the club!\n\n" + "Best regards,\n" + "Matthew Araujo"
+	msg := "From: " + stmpAuthor + "\n" + "To: " + user.Email + "\n" + "Subject: Welcome to the club!\n\n" + "Hello " + user.FirstName + " " + user.LastName + ",\n\n" + "Welcome to the club!\n\n" + "Best regards,\n" + "Matthew Araujo"
 
 	err := smtp.SendMail(
-		"smtp.gmail.com:587",
+		smtpHost+":"+smtpPort,
 		auth,
-		author,
+		stmpAuthor,
 		[]string{user.Email},
 		[]byte(msg),
 	)
